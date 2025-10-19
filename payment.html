@@ -3,132 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice - IPL Ticket</title>
+<title>Payment - IPL Tickets</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{
-    font-family:'Roboto',sans-serif;
-    background:#f4f4f9;
-    margin:0;
-    padding:0;
-}
-.header{
-    background:#333545;
-    color:#fff;
-    padding:15px 20px;
-    text-align:center;
-}
-.container{
-    max-width:700px;
-    margin:20px auto;
-    background:#fff;
-    padding:20px;
-    border-radius:10px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.1);
-}
-h2{
-    text-align:center;
-    margin-bottom:20px;
-    color:#333;
-}
-.info{
-    display:flex;
-    justify-content:space-between;
-    margin-bottom:10px;
-}
-.info span{
-    font-weight:500;
-}
-.qr{
-    text-align:center;
-    margin:20px 0;
-}
-input[type="text"]{
-    width:100%;
-    padding:8px;
-    margin:10px 0;
-    border-radius:5px;
-    border:1px solid #ccc;
-    font-size:16px;
-}
-button{
-    width:100%;
-    padding:10px;
-    background:#f84464;
-    color:#fff;
-    border:none;
-    border-radius:5px;
-    font-size:16px;
-    cursor:pointer;
-    margin-top:10px;
-}
-button:hover{
-    background:#c4242b;
-}
-.back-btn{
-    display:inline-block;
-    margin-bottom:10px;
-    color:#333;
-    text-decoration:none;
-}
-.back-btn:hover{
-    text-decoration:underline;
-}
+body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#f4f7fc;color:#333;}
+header{width:100%;background:#333545;color:#fff;display:flex;align-items:center;padding:10px 20px;position:sticky;top:0;z-index:1000;}
+header h1{font-size:22px;}
+.container{max-width:900px;margin:20px auto;padding:10px;}
+.payment-box{background:#fff;padding:30px;border-radius:15px;box-shadow:0 15px 30px rgba(0,0,0,0.1);border-top:6px solid #f84464;text-align:center;}
+.payment-box h2{font-size:28px;margin-bottom:10px;color:#1a1a1a;}
+.seats-list{display:flex;flex-wrap:wrap;justify-content:center;list-style:none;padding:0;margin:10px 0;}
+.seats-list li{background:#6fcf97;color:#fff;padding:8px 12px;margin:5px;border-radius:8px;font-weight:500;}
+.qr-container img{width:200px;height:200px;}
+input#utrInput{padding:10px;font-size:16px;width:250px;text-align:center;border-radius:8px;border:1px solid #ccc;margin-bottom:15px;}
+button#payWithUTR{padding:12px 20px;font-size:16px;font-weight:700;border:none;border-radius:8px;cursor:pointer;color:#fff;background:#4caf50;margin-top:10px;}
+button#payWithUTR:hover{background:#43a047;}
 </style>
 </head>
 <body>
 
-<div class="header">
-<h1>Invoice - IPL Ticket</h1>
-</div>
+<header><h1>IPL Tickets</h1></header>
 
 <div class="container">
-<a href="match-details.html" class="back-btn">← Back to Seat Selection</a>
-
-<h2>Your Ticket Details</h2>
-
-<div class="info"><span>Match:</span> <span id="matchName">---</span></div>
-<div class="info"><span>Stadium:</span> <span id="stadiumName">---</span></div>
-<div class="info"><span>Date:</span> <span id="matchDate">---</span></div>
-<div class="info"><span>Seat(s) Selected:</span> <span id="selectedSeats">---</span></div>
-<div class="info"><span>Price per Seat:</span> ₹<span id="seatPrice">0</span></div>
-<div class="info"><span>Total Price:</span> ₹<span id="totalPrice">0</span></div>
-
-<div class="qr">
-<img src="https://iili.io/K8pC8WG.png" alt="QR Code" style="width:180px;height:180px;">
-<p>UTR Number: <span id="displayUTR">---</span></p>
+<div class="payment-box">
+<h2>Scan & Pay</h2>
+<div class="match-info" id="matchInfo"></div>
+<h3>Seats</h3>
+<ul class="seats-list" id="seatList"></ul>
+<p class="total-amount" id="totalAmount"></p>
+<div class="qr-container"><img src="https://iili.io/K8pC8WG.png" alt="Scan to Pay QR"></div>
+<p>Enter UTR after payment:</p>
+<input type="text" id="utrInput" placeholder="Enter UTR">
+<br>
+<button id="payWithUTR">Pay</button>
 </div>
-
-<input type="text" id="utrInput" placeholder="Enter 12-digit UTR Number">
-<button onclick="proceedPayment()">Pay Now</button>
 </div>
 
 <script>
-// Load data from localStorage
-const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch')) || {};
-const selectedSeats = JSON.parse(localStorage.getItem('selectedSeats')) || [];
-const seatPrice = selectedMatch.price || 100; // fallback
-const totalPrice = selectedSeats.length * seatPrice;
+const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
+if(!invoiceData){ alert("No data!"); window.location.href="seat-selection.html"; }
 
-// Populate invoice
-document.getElementById('matchName').textContent = selectedMatch.teams || '---';
-document.getElementById('stadiumName').textContent = selectedMatch.stadium || '---';
-document.getElementById('matchDate').textContent = selectedMatch.date || '---';
-document.getElementById('selectedSeats').textContent = selectedSeats.join(', ') || '---';
-document.getElementById('seatPrice').textContent = seatPrice;
-document.getElementById('totalPrice').textContent = totalPrice;
+document.getElementById('matchInfo').innerHTML = `<strong>${invoiceData.match.teams}</strong><br>${invoiceData.match.date} | ${invoiceData.match.stadium}`;
 
-function proceedPayment(){
-    const utr = document.getElementById('utrInput').value.trim();
-    if(!utr || utr.length !== 12 || isNaN(utr)){
-        alert("Please enter a valid 12-digit UTR number");
-        return;
-    }
-    document.getElementById('displayUTR').textContent = utr;
-    localStorage.setItem('UTRNumber', utr);
-    alert("Payment Successful! Redirecting...");
-    window.location.href = "payment-success.html"; // next page
-}
+const seatList = document.getElementById('seatList');
+invoiceData.seats.forEach(seat=>{
+  const li = document.createElement('li');
+  li.textContent = seat;
+  seatList.appendChild(li);
+});
+
+document.getElementById('totalAmount').textContent = `Total Amount: ₹${invoiceData.total}`;
+
+document.getElementById('payWithUTR').addEventListener('click', ()=>{
+  const utr = document.getElementById('utrInput').value.trim();
+  if(utr===""){ alert("Enter UTR!"); return; }
+  localStorage.setItem('utrNumber', utr);
+  window.location.href="ticket.html";
+});
 </script>
 
 </body>

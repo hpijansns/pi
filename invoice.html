@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice - IPL Tickets</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#f4f4f9;}
+.header-banner img{width:100%;height:auto;display:block;border-bottom:4px solid #f84464;}
+header{width:100%;background:#333545;color:#fff;display:flex;align-items:center;padding:10px 20px;position:sticky;top:0;z-index:1000;}
+header h1{font-size:20px;}
+.container{max-width:600px;margin:20px auto;padding:10px;}
+.invoice-box{background:#fff;padding:20px;border-radius:10px;box-shadow:0 5px 20px rgba(0,0,0,0.1);}
+.invoice-box h2{margin-bottom:15px;text-align:center;}
+.invoice-box p{margin-bottom:8px;color:#555;}
+.seats-list{margin:10px 0;padding:0;list-style:none;}
+.seats-list li{display:inline-block;background:#6fcf97;color:#fff;padding:5px 10px;margin:5px;border-radius:5px;font-size:14px;}
+.total{margin-top:15px;font-weight:600;font-size:18px;text-align:center;}
+button#pay{margin-top:20px;width:100%;padding:10px;background:#f84464;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
+button#pay:hover{background:#c4242b;}
+</style>
+</head>
+<body>
+
+<div class="header-banner">
+<img id="banner-img" src="" alt="IPL Header">
+</div>
+<header>
+<h1>IPL Tickets</h1>
+</header>
+
+<div class="container">
+<div class="invoice-box" id="invoiceBox">
+<h2>Invoice</h2>
+<p id="matchInfo"></p>
+<ul class="seats-list" id="seatList"></ul>
+<p class="total">Total Amount: ₹<span id="totalAmount">0</span></p>
+<button id="pay">Pay Now</button>
+</div>
+</div>
+
+<script>
+// Banner
+const banner = localStorage.getItem('bannerURL') || "https://iili.io/K8L5Ots.jpg";
+document.getElementById('banner-img').src = banner;
+
+// Invoice data
+const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
+if(!invoiceData){ alert("No invoice data"); window.location.href="index.html"; }
+
+document.getElementById('matchInfo').innerHTML = `
+<strong>${invoiceData.match.teams}</strong><br>${invoiceData.match.date} | ${invoiceData.match.stadium}
+`;
+
+const seatList = document.getElementById('seatList');
+invoiceData.seats.forEach(seat=>{
+    const li = document.createElement('li');
+    li.textContent = seat;
+    seatList.appendChild(li);
+});
+
+document.getElementById('totalAmount').textContent = invoiceData.total;
+
+// Pay button
+document.getElementById('pay').addEventListener('click', ()=>{
+    window.location.href = "payment.html";
+});
+</script>
+
+</body>
+</html>

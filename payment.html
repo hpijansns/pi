@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL Ticket Invoice</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body {
+    margin:0;
+    padding:0;
+    font-family:'Roboto',sans-serif;
+    background:#f4f4f9;
+    color:#333;
+}
+header {
+    width:100%;
+    background:#333545;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    padding:10px 20px;
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+header h1 { font-size:20px; }
+.nav-links { margin-left:auto; display:flex; align-items:center; }
+.nav-links a { color:#fff; text-decoration:none; margin:0 10px; font-size:14px; }
+.nav-links a:hover { text-decoration:underline; }
+
+.container {
+    max-width:800px;
+    margin:30px auto;
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.1);
+}
+
+h2 { text-align:center; margin-bottom:20px; color:#f84464; }
+.invoice-info { display:flex; justify-content:space-between; margin-bottom:10px; font-size:16px; }
+.invoice-info span { font-weight:500; }
+.qr-section { text-align:center; margin:30px 0; }
+.qr-section img { width:200px; height:200px; }
+
+.pay-btn {
+    display:block;
+    width:100%;
+    padding:12px 0;
+    background:#f84464;
+    color:#fff;
+    font-size:16px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    transition:0.3s;
+}
+.pay-btn:hover { background:#c4242b; }
+
+.footer { text-align:center; margin-top:40px; font-size:14px; color:#777; }
+</style>
+</head>
+<body>
+
+<header>
+<h1>IPL Tickets</h1>
+<div class="nav-links">
+<a href="index.html">Home</a>
+</div>
+</header>
+
+<div class="container">
+<h2>Invoice</h2>
+<div class="invoice-info"><span>Match:</span> <span id="match-name">---</span></div>
+<div class="invoice-info"><span>Date:</span> <span id="match-date">---</span></div>
+<div class="invoice-info"><span>Stadium:</span> <span id="match-stadium">---</span></div>
+<div class="invoice-info"><span>Seats Selected:</span> <span id="selected-seats">0</span></div>
+<div class="invoice-info"><span>Total Price:</span> ₹<span id="total-price">0</span></div>
+
+<div class="qr-section">
+<h3>Scan to Pay</h3>
+<img src="https://iili.io/K8pC8WG.png" alt="QR Code">
+</div>
+
+<button class="pay-btn" onclick="completePayment()">Pay Now</button>
+</div>
+
+<div class="footer">© 2025 IPL Tickets. All rights reserved.</div>
+
+<script>
+// Load match & booking data
+const bookingData = JSON.parse(localStorage.getItem('bookingData')) || {match:{}, seats:0, price:0};
+document.getElementById('match-name').textContent = bookingData.match.teams || '---';
+document.getElementById('match-date').textContent = bookingData.match.date || '---';
+document.getElementById('match-stadium').textContent = bookingData.match.stadium || '---';
+document.getElementById('selected-seats').textContent = bookingData.seats || 0;
+document.getElementById('total-price').textContent = bookingData.price || 0;
+
+// Payment simulation
+function completePayment(){
+    const utr = Math.floor(100000000000 + Math.random()*900000000000); // 12-digit UTR
+    localStorage.setItem('paymentUTR', utr);
+    window.location.href = "payment-success.html";
+}
+</script>
+
+</body>
+</html>

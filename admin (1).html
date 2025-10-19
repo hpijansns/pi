@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPL Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+body{font-family:'Roboto',sans-serif;background:#f9f9f9;margin:0;padding:0;}
+header{background:#333545;color:#fff;padding:10px 20px;}
+header h1{margin:0;font-size:20px;}
+.container{max-width:900px;margin:20px auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.15);}
+h2{margin-bottom:15px;color:#333;}
+label{display:block;margin-top:10px;color:#555;font-weight:500;}
+input{padding:6px 10px;width:100%;margin-top:5px;border-radius:4px;border:1px solid #ccc;}
+button{margin-top:10px;padding:8px 14px;background:#f84464;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:14px;}
+button:hover{background:#c4242b;}
+.match-item{padding:10px;border:1px solid #ddd;margin-top:10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+.match-item div{margin-bottom:5px;}
+.match-item button{background:#555;}
+.match-item button:hover{background:#333;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>IPL Admin Panel</h1>
+</header>
+
+<div class="container">
+<h2>Update Banner / Header</h2>
+<label>Banner Image URL</label>
+<input type="text" id="banner-url" placeholder="Paste image URL here">
+<button onclick="updateBanner()">Update Banner</button>
+
+<h2>Manage Matches</h2>
+<label>Teams</label>
+<input type="text" id="match-teams" placeholder="Team1 vs Team2">
+<label>Date</label>
+<input type="date" id="match-date">
+<label>Stadium</label>
+<input type="text" id="match-stadium" placeholder="Stadium Name">
+<label>Match Image URL</label>
+<input type="text" id="match-img" placeholder="Match Card Image URL">
+<button onclick="addMatch()">Add Match</button>
+
+<div id="matches-list"></div>
+</div>
+
+<script>
+let matches=JSON.parse(localStorage.getItem('iplMatches'))||[
+    {teams:"Mumbai Indians vs Chennai Super Kings",date:"2025-04-05",stadium:"Wankhede Stadium",img:"https://iili.io/K8L5Ots.jpg"}
+];
+let banner=localStorage.getItem('bannerURL')||"https://iili.io/K8L5Ots.jpg";
+document.getElementById('banner-url').value=banner;
+
+function updateBanner(){
+    const url=document.getElementById('banner-url').value;
+    localStorage.setItem('bannerURL', url);
+    alert("Banner updated! Homepage will show the new banner.");
+}
+
+function displayMatches(){
+    const container=document.getElementById('matches-list');
+    container.innerHTML="";
+    matches.forEach((match,index)=>{
+        let div=document.createElement('div');
+        div.className='match-item';
+        div.innerHTML=`
+        <div>
+        <strong>${match.teams}</strong><br>
+        Date: ${match.date}<br>
+        Stadium: ${match.stadium}<br>
+        <img src="${match.img}" alt="${match.teams}" style="width:100px;height:60px;object-fit:cover;margin-top:5px;">
+        </div>
+        <div>
+        <button onclick="editMatch(${index})">Edit</button>
+        <button onclick="deleteMatch(${index})">Delete</button>
+        </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function addMatch(){
+    const teams=document.getElementById('match-teams').value;
+    const date=document.getElementById('match-date').value;
+    const stadium=document.getElementById('match-stadium').value;
+    const img=document.getElementById('match-img').value;
+    if(!teams||!date||!stadium||!img){alert("Fill all fields");return;}
+    matches.push({teams,date,stadium,img});
+    localStorage.setItem('iplMatches', JSON.stringify(matches));
+    displayMatches();
+    document.getElementById('match-teams').value="";
+    document.getElementById('match-date').value="";
+    document.getElementById('match-stadium').value="";
+    document.getElementById('match-img').value="";
+}
+
+function deleteMatch(index){
+    if(confirm("Are you sure to delete this match?")){
+        matches.splice(index,1);
+        localStorage.setItem('iplMatches', JSON.stringify(matches));
+        displayMatches();
+    }
+}
+
+function editMatch(index){
+    const match=matches[index];
+    const newTeams=prompt("Edit Teams", match.teams);
+    const newDate=prompt("Edit Date", match.date);
+    const newStadium=prompt("Edit Stadium", match.stadium);
+    const newImg=prompt("Edit Image URL", match.img);
+    if(newTeams && newDate && newStadium && newImg){
+        matches[index]={teams:newTeams,date:newDate,stadium:newStadium,img:newImg};
+        localStorage.setItem('iplMatches', JSON.stringify(matches));
+        displayMatches();
+    }
+}
+
+displayMatches();
+</script>
+
+</body>
+</html>

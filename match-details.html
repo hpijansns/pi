@@ -3,15 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPL Seat Selection</title>
+<title>Seat Selection - IPL Tickets</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#f4f4f9;}
+body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#f4f7fc;}
 header{width:100%;background:#333545;color:#fff;display:flex;align-items:center;padding:10px 20px;position:sticky;top:0;z-index:1000;}
-header h1{font-size:20px;}
-.container{max-width:1000px;margin:20px auto;padding:10px;}
+header h1{font-size:22px;}
+.container{max-width:900px;margin:20px auto;padding:10px;}
 .match-info{background:#fff;padding:15px;border-radius:10px;box-shadow:0 3px 15px rgba(0,0,0,0.1);margin-bottom:20px;text-align:center;}
-.arena{background:#4caf50;padding:20px;border-radius:10px;display:grid;grid-template-columns:repeat(12,1fr);gap:5px;justify-items:center;}
+.match-info h2{margin-bottom:5px;}
+.match-info p{margin-bottom:5px;color:#555;font-size:14px;}
+.arena{background:#4caf50;padding:20px;border-radius:10px;display:grid;grid-template-columns:repeat(12,40px);gap:5px;justify-content:center;}
 .seat{width:40px;height:40px;background:#fff;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:0.3s;}
 .seat.selected{background:#ff6b6b;color:#fff;}
 .seat.booked{background:#ccc;cursor:default;}
@@ -19,70 +21,74 @@ header h1{font-size:20px;}
 button#proceed{margin-top:10px;padding:10px 20px;background:#f84464;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
 button#proceed:hover{background:#c4242b;}
 @media(max-width:600px){
-  .arena{grid-template-columns:repeat(6,1fr);}
+  .arena{grid-template-columns:repeat(6,40px);}
   .seat{width:35px;height:35px;font-size:11px;}
-  button#proceed{width:100%;}
 }
 </style>
 </head>
 <body>
 
-<header>
-<h1>IPL Tickets</h1>
-</header>
+<header><h1>IPL Tickets</h1></header>
 
 <div class="container">
-<div class="match-info" id="matchInfo"></div>
+  <div class="match-info" id="matchInfo"></div>
 
-<h2 style="text-align:center;">Select Your Seats</h2>
-<div class="arena" id="arena"></div>
+  <h2 style="text-align:center;">Select Your Seats</h2>
+  <div class="arena" id="arena"></div>
 
-<div class="summary">
-Total Seats: <span id="totalSeats">0</span> | Total Amount: ₹<span id="totalAmount">0</span>
-<br>
-<button id="proceed">Proceed to Invoice</button>
-</div>
+  <div class="summary">
+    Total Seats: <span id="totalSeats">0</span> | Total Amount: ₹<span id="totalAmount">0</span>
+    <br>
+    <button id="proceed">Proceed to Invoice</button>
+  </div>
 </div>
 
 <script>
-const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch')) || {teams:"Mumbai Indians vs CSK",date:"2025-04-05",stadium:"Wankhede Stadium"};
-document.getElementById('matchInfo').innerHTML = `<strong>${selectedMatch.teams}</strong><br>${selectedMatch.date} | ${selectedMatch.stadium}`;
+// Banner (optional)
+const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch')) || {
+  teams: "Mumbai Indians vs Chennai Super Kings",
+  date: "2025-04-05",
+  stadium: "Wankhede Stadium"
+};
+document.getElementById('matchInfo').innerHTML = `<h2>${selectedMatch.teams}</h2><p>${selectedMatch.date} | ${selectedMatch.stadium}</p>`;
 
+// Seat selection
 const arena = document.getElementById('arena');
 const rows = 10, cols = 12;
 const seatPrice = 1000;
 let selectedSeats = [];
 
 for(let r=1;r<=rows;r++){
-    for(let c=1;c<=cols;c++){
-        const seat = document.createElement('div');
-        seat.className = 'seat';
-        seat.dataset.seat = `R${r}C${c}`;
-        if(Math.random()<0.2) seat.classList.add('booked');
-        seat.innerText = `${r}${String.fromCharCode(64+c)}`;
-        arena.appendChild(seat);
-        seat.addEventListener('click', ()=>{
-            if(seat.classList.contains('booked')) return;
-            seat.classList.toggle('selected');
-            updateSummary();
-        });
-    }
+  for(let c=1;c<=cols;c++){
+    const seat = document.createElement('div');
+    seat.className = 'seat';
+    seat.dataset.seat = `R${r}C${c}`;
+    if(Math.random()<0.2) seat.classList.add('booked');
+    seat.innerText = `${r}${String.fromCharCode(64+c)}`;
+    arena.appendChild(seat);
+
+    seat.addEventListener('click', ()=>{
+      if(seat.classList.contains('booked')) return;
+      seat.classList.toggle('selected');
+      updateSummary();
+    });
+  }
 }
 
 function updateSummary(){
-    selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(s=>s.dataset.seat);
-    document.getElementById('totalSeats').innerText = selectedSeats.length;
-    document.getElementById('totalAmount').innerText = selectedSeats.length*seatPrice;
+  selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(s=>s.dataset.seat);
+  document.getElementById('totalSeats').innerText = selectedSeats.length;
+  document.getElementById('totalAmount').innerText = selectedSeats.length * seatPrice;
 }
 
 document.getElementById('proceed').addEventListener('click', ()=>{
-    if(selectedSeats.length===0){ alert("Select at least 1 seat"); return; }
-    localStorage.setItem('invoiceData', JSON.stringify({
-        match:selectedMatch,
-        seats:selectedSeats,
-        total:selectedSeats.length*seatPrice
-    }));
-    window.location.href="invoice.html";
+  if(selectedSeats.length===0){ alert("Select at least 1 seat"); return; }
+  localStorage.setItem('invoiceData', JSON.stringify({
+    match: selectedMatch,
+    seats: selectedSeats,
+    total: selectedSeats.length*seatPrice
+  }));
+  window.location.href="invoice.html";
 });
 </script>
 

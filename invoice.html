@@ -6,38 +6,133 @@
 <title>Invoice - IPL Tickets</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#f4f4f9;}
-.header-banner img{width:100%;height:auto;display:block;border-bottom:4px solid #f84464;}
-header{width:100%;background:#333545;color:#fff;display:flex;align-items:center;padding:10px 20px;position:sticky;top:0;z-index:1000;}
-header h1{font-size:20px;}
-.container{max-width:600px;margin:20px auto;padding:10px;}
-.invoice-box{background:#fff;padding:20px;border-radius:10px;box-shadow:0 5px 20px rgba(0,0,0,0.1);}
-.invoice-box h2{margin-bottom:15px;text-align:center;}
-.invoice-box p{margin-bottom:8px;color:#555;}
-.seats-list{margin:10px 0;padding:0;list-style:none;}
-.seats-list li{display:inline-block;background:#6fcf97;color:#fff;padding:5px 10px;margin:5px;border-radius:5px;font-size:14px;}
-.total{margin-top:15px;font-weight:600;font-size:18px;text-align:center;}
-button#pay{margin-top:20px;width:100%;padding:10px;background:#f84464;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
-button#pay:hover{background:#c4242b;}
+body {
+  margin:0;
+  padding:0;
+  font-family:'Roboto',sans-serif;
+  background:#f4f7fc;
+  color:#333;
+}
+.header-banner img {
+  width:100%;
+  height:auto;
+  display:block;
+  border-bottom:4px solid #f84464;
+}
+header {
+  width:100%;
+  background:#333545;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  padding:10px 20px;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+header h1 {
+  font-size:22px;
+  font-weight:700;
+}
+.container {
+  max-width:800px;
+  margin:20px auto;
+  padding:10px;
+}
+.invoice-box {
+  background:#fff;
+  padding:30px;
+  border-radius:15px;
+  box-shadow:0 15px 30px rgba(0,0,0,0.1);
+  border-top:6px solid #f84464;
+  animation: fadeIn 0.6s ease-in-out;
+}
+.invoice-box h2 {
+  text-align:center;
+  font-weight:700;
+  font-size:28px;
+  color:#1a1a1a;
+  margin-bottom:20px;
+}
+.invoice-box p {
+  font-size:16px;
+  margin-bottom:10px;
+  color:#555;
+}
+.seats-list {
+  display:flex;
+  flex-wrap:wrap;
+  list-style:none;
+  padding:0;
+  margin:15px 0;
+}
+.seats-list li {
+  background:#6fcf97;
+  color:#fff;
+  padding:8px 12px;
+  margin:5px;
+  border-radius:8px;
+  font-weight:500;
+  box-shadow:0 3px 6px rgba(0,0,0,0.1);
+  transition:0.3s;
+}
+.seats-list li:hover {
+  transform:translateY(-3px);
+  box-shadow:0 6px 12px rgba(0,0,0,0.2);
+}
+.total {
+  text-align:center;
+  font-size:20px;
+  font-weight:700;
+  margin-top:20px;
+  color:#1a1a1a;
+}
+button#pay {
+  width:100%;
+  padding:15px;
+  font-size:18px;
+  font-weight:700;
+  color:#fff;
+  background:linear-gradient(90deg,#f84464,#c4242b);
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  margin-top:20px;
+  transition:0.3s;
+  box-shadow:0 6px 15px rgba(0,0,0,0.2);
+}
+button#pay:hover {
+  transform:translateY(-3px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+@keyframes fadeIn {
+  0% {opacity:0; transform:translateY(20px);}
+  100% {opacity:1; transform:translateY(0);}
+}
+@media(max-width:600px){
+  .invoice-box h2 {font-size:24px;}
+  .seats-list li {padding:6px 10px; font-size:14px;}
+  button#pay {font-size:16px; padding:12px;}
+}
 </style>
 </head>
 <body>
 
 <div class="header-banner">
-<img id="banner-img" src="" alt="IPL Header">
+  <img id="banner-img" src="" alt="IPL Header">
 </div>
 <header>
-<h1>IPL Tickets</h1>
+  <h1>IPL Tickets</h1>
 </header>
 
 <div class="container">
-<div class="invoice-box" id="invoiceBox">
-<h2>Invoice</h2>
-<p id="matchInfo"></p>
-<ul class="seats-list" id="seatList"></ul>
-<p class="total">Total Amount: ₹<span id="totalAmount">0</span></p>
-<button id="pay">Pay Now</button>
-</div>
+  <div class="invoice-box" id="invoiceBox">
+    <h2>Invoice</h2>
+    <p id="matchInfo"></p>
+    <ul class="seats-list" id="seatList"></ul>
+    <p class="total">Total Amount: ₹<span id="totalAmount">0</span></p>
+    <button id="pay">Proceed to Payment</button>
+  </div>
 </div>
 
 <script>
@@ -45,26 +140,30 @@ button#pay:hover{background:#c4242b;}
 const banner = localStorage.getItem('bannerURL') || "https://iili.io/K8L5Ots.jpg";
 document.getElementById('banner-img').src = banner;
 
-// Invoice data
+// Load invoice data
 const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
-if(!invoiceData){ alert("No invoice data"); window.location.href="index.html"; }
+if(!invoiceData){ alert("No invoice data found!"); window.location.href="index.html"; }
 
+// Match info
 document.getElementById('matchInfo').innerHTML = `
-<strong>${invoiceData.match.teams}</strong><br>${invoiceData.match.date} | ${invoiceData.match.stadium}
+<strong>${invoiceData.match.teams}</strong><br>
+${invoiceData.match.date} | ${invoiceData.match.stadium}
 `;
 
+// Seats
 const seatList = document.getElementById('seatList');
 invoiceData.seats.forEach(seat=>{
-    const li = document.createElement('li');
-    li.textContent = seat;
-    seatList.appendChild(li);
+  const li = document.createElement('li');
+  li.textContent = seat;
+  seatList.appendChild(li);
 });
 
+// Total amount
 document.getElementById('totalAmount').textContent = invoiceData.total;
 
 // Pay button
 document.getElementById('pay').addEventListener('click', ()=>{
-    window.location.href = "payment.html";
+  window.location.href = "payment.html";
 });
 </script>
 

@@ -10,17 +10,8 @@ body {
   margin:0;
   padding:0;
   font-family:'Roboto',sans-serif;
-  background:#f4f7fc;
+  background:#f0f2f7;
   color:#333;
-}
-.header-banner {
-  position:relative;
-}
-.header-banner img {
-  width:100%;
-  height:auto;
-  display:block;
-  border-bottom:4px solid #f84464;
 }
 header {
   width:100%;
@@ -28,40 +19,39 @@ header {
   color:#fff;
   display:flex;
   align-items:center;
-  padding:10px 20px;
+  padding:12px 20px;
   position:sticky;
   top:0;
   z-index:1000;
+  box-shadow:0 2px 6px rgba(0,0,0,0.2);
 }
-header h1 {
-  font-size:22px;
-  font-weight:700;
-}
+header h1 { font-size:22px; font-weight:700; }
 .container {
   max-width:900px;
-  margin:20px auto;
-  padding:10px;
+  margin:25px auto;
+  padding:15px;
 }
 .invoice-box {
   background:#fff;
-  padding:30px;
+  padding:35px;
   border-radius:15px;
-  box-shadow:0 15px 30px rgba(0,0,0,0.1);
+  box-shadow:0 20px 40px rgba(0,0,0,0.1);
   border-top:6px solid #f84464;
   animation: fadeIn 0.6s ease-in-out;
 }
 .invoice-box h2 {
   text-align:center;
-  font-weight:700;
   font-size:28px;
-  color:#1a1a1a;
   margin-bottom:10px;
+  font-weight:700;
+  color:#1a1a1a;
 }
 .booking-id, .timestamp {
   text-align:center;
-  font-weight:500;
+  font-size:14px;
   color:#f84464;
   margin-bottom:5px;
+  font-weight:500;
 }
 .match-info {
   text-align:center;
@@ -72,41 +62,22 @@ header h1 {
 .seats-list {
   display:flex;
   flex-wrap:wrap;
+  justify-content:center;
   list-style:none;
   padding:0;
-  margin:15px 0;
-  justify-content:center;
+  margin:10px 0;
 }
 .seats-list li {
   background:#6fcf97;
   color:#fff;
-  padding:8px 12px;
+  padding:8px 14px;
   margin:5px;
-  border-radius:8px;
-  font-weight:500;
-  box-shadow:0 3px 6px rgba(0,0,0,0.1);
+  border-radius:10px;
+  font-weight:600;
+  box-shadow:0 3px 6px rgba(0,0,0,0.15);
   transition:0.3s;
 }
-.seats-list li:hover {
-  transform:translateY(-3px);
-  box-shadow:0 6px 12px rgba(0,0,0,0.2);
-}
-.price-breakdown {
-  margin-top:20px;
-  border-top:1px solid #ddd;
-  padding-top:15px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  font-size:16px;
-  gap:5px;
-}
-.price-breakdown div {
-  width:100%;
-  display:flex;
-  justify-content:space-between;
-  max-width:400px;
-}
+.seats-list li:hover { transform:translateY(-3px); box-shadow:0 6px 12px rgba(0,0,0,0.2); }
 .total {
   text-align:center;
   font-size:20px;
@@ -115,43 +86,31 @@ header h1 {
   color:#1a1a1a;
 }
 button {
-  width:100%;
-  padding:15px;
-  font-size:18px;
+  padding:14px 25px;
+  font-size:16px;
   font-weight:700;
-  color:#fff;
-  background:linear-gradient(90deg,#f84464,#c4242b);
   border:none;
   border-radius:10px;
   cursor:pointer;
-  margin-top:15px;
+  margin:15px 5px;
+  color:#fff;
   transition:0.3s;
-  box-shadow:0 6px 15px rgba(0,0,0,0.2);
 }
-button:hover {
-  transform:translateY(-3px);
-  box-shadow:0 8px 20px rgba(0,0,0,0.3);
+#proceedPayment { 
+  background:linear-gradient(90deg,#4caf50,#2e7d32);
 }
-button#printInvoice {
-  background:#6c63ff;
-  margin-top:10px;
-}
-@keyframes fadeIn {
-  0% {opacity:0; transform:translateY(20px);}
-  100% {opacity:1; transform:translateY(0);}
+button:hover { transform:translateY(-2px); box-shadow:0 6px 15px rgba(0,0,0,0.2); }
+@keyframes fadeIn {0% {opacity:0; transform:translateY(20px);} 100% {opacity:1; transform:translateY(0);}
 }
 @media(max-width:600px){
-  .invoice-box h2 {font-size:24px;}
-  .seats-list li {padding:6px 10px; font-size:14px;}
-  button {font-size:16px; padding:12px;}
+  .invoice-box h2{font-size:24px;}
+  .seats-list li{padding:6px 10px; font-size:14px;}
+  button{font-size:14px; padding:12px;}
 }
 </style>
 </head>
 <body>
 
-<div class="header-banner">
-  <img id="banner-img" src="" alt="IPL Header">
-</div>
 <header>
   <h1>IPL Tickets</h1>
 </header>
@@ -163,29 +122,23 @@ button#printInvoice {
     <p class="timestamp" id="timestamp"></p>
     <div class="match-info" id="matchInfo"></div>
     
-    <h3 style="text-align:center;">Selected Seats</h3>
+    <h3>Selected Seats</h3>
     <ul class="seats-list" id="seatList"></ul>
-
-    <div class="price-breakdown" id="priceBreakdown"></div>
+    
     <p class="total">Total Amount: ₹<span id="totalAmount">0</span></p>
-    <button id="pay">Proceed to Payment</button>
-    <button id="printInvoice">Print Invoice</button>
+    <button id="proceedPayment">Proceed to Payment</button>
   </div>
 </div>
 
 <script>
-// Banner
-const banner = localStorage.getItem('bannerURL') || "https://iili.io/K8L5Ots.jpg";
-document.getElementById('banner-img').src = banner;
+// Load selected match and seats
+const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch'));
+if(!selectedMatch){ alert("No match selected!"); window.location.href="index.html"; }
 
-// Load invoice data
-const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
-if(!invoiceData){ 
-  alert("No invoice data found!"); 
-  window.location.href="index.html"; 
-}
+const selectedSeats = JSON.parse(localStorage.getItem('selectedSeats')) || [];
+if(selectedSeats.length === 0){ alert("No seats selected!"); window.location.href="index.html"; }
 
-// Booking ID & timestamp
+// Booking ID & Timestamp
 const bookingID = 'IPL2025-' + Date.now();
 const now = new Date();
 const timestamp = now.toLocaleString();
@@ -193,40 +146,32 @@ document.getElementById('bookingID').textContent = `Booking ID: ${bookingID}`;
 document.getElementById('timestamp').textContent = `Date & Time: ${timestamp}`;
 
 // Match info
-document.getElementById('matchInfo').innerHTML = `
-<strong>${invoiceData.match.teams}</strong><br>
-${invoiceData.match.date} | ${invoiceData.match.stadium}
-`;
+document.getElementById('matchInfo').innerHTML = `<strong>${selectedMatch.teams}</strong><br>${selectedMatch.date} | ${selectedMatch.stadium}`;
 
-// Seats list
+// Seats & total
 const seatList = document.getElementById('seatList');
-const priceBreakdown = document.getElementById('priceBreakdown');
-const seatPrice = 1000; // per seat price
-invoiceData.seats.forEach(seat=>{
-  // Seat badge
+const seatPrice = 1000;
+let totalAmount = 0;
+selectedSeats.forEach(seat=>{
   const li = document.createElement('li');
   li.textContent = seat;
   seatList.appendChild(li);
-  
-  // Price breakdown
-  const div = document.createElement('div');
-  div.innerHTML = `<span>${seat}</span><span>₹${seatPrice}</span>`;
-  priceBreakdown.appendChild(div);
+  totalAmount += seatPrice;
 });
 
-// Total
-document.getElementById('totalAmount').textContent = invoiceData.total;
+document.getElementById('totalAmount').textContent = totalAmount;
 
-// Pay button
-document.getElementById('pay').addEventListener('click', ()=>{
-  alert(`Payment of ₹${invoiceData.total} successful! 🎉`);
-  localStorage.removeItem('invoiceData'); // clear data after payment
-  window.location.href = "index.html";
-});
-
-// Print invoice
-document.getElementById('printInvoice').addEventListener('click', ()=>{
-  window.print();
+// Proceed to Payment
+document.getElementById('proceedPayment').addEventListener('click', ()=>{
+  const invoiceData = {
+    match: selectedMatch,
+    seats: selectedSeats,
+    total: totalAmount,
+    bookingID,
+    timestamp
+  };
+  localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
+  window.location.href = "payment-qr.html";
 });
 </script>
 

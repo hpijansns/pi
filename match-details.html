@@ -1,109 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invoice - IPL Tickets</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-  *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
-  body{background:#f4f4f9;color:#333;}
-  
-  .header-banner img{width:100%;height:auto;display:block;border-bottom:4px solid #f84464;}
-  header{
-    width:100%;
-    background:#333545;
-    color:#fff;
-    display:flex;
-    align-items:center;
-    padding:10px 20px;
-    position:sticky;
-    top:0;
-    z-index:1000;
-  }
-  header h1{font-size:clamp(16px,2vw,24px);}
-
-  .container{max-width:800px;margin:20px auto;padding:10px;}
-  .invoice-box{
-    background:#fff;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.1);
-  }
-  .invoice-box h2{margin-bottom:10px;font-size:clamp(18px,2vw,24px);}
-  .invoice-box p{margin-bottom:8px;font-size:clamp(12px,1.5vw,16px);}
-  .seats-list{margin:10px 0;padding:10px;background:#f1f1f1;border-radius:8px;display:flex;flex-wrap:wrap;gap:5px;}
-  .seat-item{background:#4caf50;color:#fff;padding:5px 10px;border-radius:5px;font-size:clamp(10px,1vw,14px);}
-  
-  .qr-section{text-align:center;margin-top:20px;}
-  .qr-section img{width:150px;height:150px;object-fit:contain;margin-bottom:10px;}
-  .qr-section input{width:100%;padding:8px;border-radius:5px;border:1px solid #ccc;margin-top:5px;font-size:16px;}
-
-  button#payBtn{
-    margin-top:20px;
-    width:100%;
-    padding:12px;
-    background:#f84464;
-    color:#fff;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:clamp(16px,1.5vw,20px);
-  }
-  button#payBtn:hover{background:#c4242b;}
-</style>
-</head>
-<body>
-
-<div class="header-banner">
-<img id="banner-img" src="" alt="IPL Header">
-</div>
-
-<header>
-<h1>IPL Tickets</h1>
-</header>
-
-<div class="container">
-  <div class="invoice-box" id="invoiceBox">
-    <!-- Invoice data will populate here -->
-  </div>
-</div>
-
 <script>
-  const banner = localStorage.getItem('bannerURL') || "https://iili.io/K8L5Ots.jpg";
-  document.getElementById('banner-img').src = banner;
+// Banner
+const banner = localStorage.getItem('bannerURL') || "https://iili.io/K8L5Ots.jpg";
+document.getElementById('banner-img').src = banner;
 
-  const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
-  if(!invoiceData){ alert("No invoice data found"); window.location.href="index.html"; }
+// Selected match
+const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch'));
+if(!selectedMatch){ alert("No match selected"); window.location.href="index.html"; }
+document.getElementById('matchInfo').innerHTML = `
+<h2>${selectedMatch.teams}</h2>
+<p>${selectedMatch.date} | ${selectedMatch.stadium}</p>
+`;
 
-  const box = document.getElementById('invoiceBox');
-  box.innerHTML = `
-    <h2>Invoice</h2>
-    <p><strong>Match:</strong> ${invoiceData.match.teams}</p>
-    <p><strong>Date & Venue:</strong> ${invoiceData.match.date} | ${invoiceData.match.stadium}</p>
-    <p><strong>Seats Selected:</strong></p>
-    <div class="seats-list">
-      ${invoiceData.seats.map(seat=>`<div class="seat-item">${seat}</div>`).join('')}
-    </div>
-    <p><strong>Total Amount:</strong> ₹${invoiceData.total}</p>
+// Arena / seat selection
+const arena = document.getElementById('arena');
+const rows = 10;
+const cols = 12;
+const seatPrice = 1000; // <-- PRICE UPDATED TO 1000
+let selectedSeats = [];
 
-    <div class="qr-section">
-      <p>Scan QR Code to Pay</p>
-      <img src="https://iili.io/K8pC8WG.png" alt="QR Code">
-      <p>Enter UTR Number (12 digits)</p>
-      <input type="text" id="utr" maxlength="12" placeholder="Enter UTR Number">
-      <button id="payBtn">Confirm Payment</button>
-    </div>
-  `;
+for(let r=1;r<=rows;r++){
+    for(let c=1;c<=cols;c++){
+        const seat = document.createElement('div');
+        seat.className = 'seat';
+        seat.dataset.seat = `R${r}C${c}`;
+        if(Math.random() < 0.2){ seat.classList.add('booked'); }
+        seat.innerText = `${r}${String.fromCharCode(64+c)}`;
+        arena.appendChild(seat);
 
-  document.getElementById('payBtn').addEventListener('click', () => {
-    const utr = document.getElementById('utr').value;
-    if(utr.length !== 12 || isNaN(utr)){ alert("Enter a valid 12-digit UTR number"); return; }
-    localStorage.setItem('paymentUTR', utr);
-    alert("Payment Confirmed! Thank you.");
-    window.location.href = "payment-success.html";
-  });
+        seat.addEventListener('click', () => {
+            if(seat.classList.contains('booked')) return;
+            seat.classList.toggle('selected');
+            updateSummary();
+        });
+    }
+}
+
+function updateSummary(){
+    selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(s=>s.dataset.seat);
+    document.getElementById('totalSeats').innerText = selectedSeats.length;
+    document.getElementById('totalAmount').innerText = selectedSeats.length * seatPrice;
+}
+
+document.getElementById('proceed').addEventListener('click', () => {
+    if(selectedSeats.length === 0){ alert("Select at least 1 seat"); return; }
+    const invoiceData = {
+        match: selectedMatch,
+        seats: selectedSeats,
+        total: selectedSeats.length * seatPrice
+    };
+    localStorage.setItem('invoiceData', JSON.stringify(invoiceData));
+    window.location.href = "invoice.html";
+});
 </script>
-
-</body>
-</html>

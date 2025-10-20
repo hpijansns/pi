@@ -8,14 +8,10 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
 body{background:#fff;color:#000;}
-header{width:100%;position:sticky;top:0;z-index:1000;}
-header img{width:100%;display:block;height:auto;}
 .container{max-width:900px;margin:20px auto;padding:10px;}
 .match-info{background:#fff;padding:15px;border-radius:10px;box-shadow:0 3px 15px rgba(0,0,0,0.1);margin-bottom:10px;text-align:center;}
 .match-info h2{margin-bottom:5px;}
 .match-info p{margin-bottom:5px;color:#555;font-size:14px;}
-#matchPreview{margin:15px 0;text-align:center;}
-#matchPreview img{max-width:90%;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
 .seat-options{display:flex;flex-wrap:wrap;justify-content:center;margin:15px 0;}
 .seat{padding:10px 15px;margin:5px;border-radius:8px;cursor:pointer;background:#f0f0f0;transition:0.3s;}
 .seat.active{background:#f84464;color:#fff;}
@@ -34,10 +30,6 @@ header img{width:100%;display:block;height:auto;}
 </head>
 <body>
 
-<header>
-<img src="https://iili.io/K8L5Ots.jpg" alt="Header Image">
-</header>
-
 <div class="container">
   <!-- Match info -->
   <div class="match-info" id="matchInfo"></div>
@@ -55,7 +47,6 @@ header img{width:100%;display:block;height:auto;}
   </div>
 
   <div class="description" id="descBox" style="display:none;"></div>
-
   <div class="price">Price per Ticket: ₹<span id="ticketPrice">0</span></div>
 
   <div class="qty">
@@ -67,8 +58,6 @@ header img{width:100%;display:block;height:auto;}
 
   <div class="total">Total: ₹ <span id="total">0</span></div>
 
-  <div id="matchPreview"></div>
-
   <button class="proceed-btn" onclick="goToPayment()">Proceed to Booking</button>
 </div>
 
@@ -77,23 +66,16 @@ let selectedSeat = null;
 let price = 0;
 
 // Load selected match info
-const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch')) || {
-  teams: "Mumbai Indians vs Chennai Super Kings",
-  date: "2025-04-05",
-  time: "19:30",
-  stadium: "Wankhede Stadium",
-  img: "https://iili.io/KS3IXBp.png" // fallback image
-};
+const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch'));
+if(!selectedMatch){
+  alert("No match selected. Redirecting to matches page.");
+  window.location.href="matches.html";
+}
 
 // Display match info
 document.getElementById('matchInfo').innerHTML = `
   <h2>${selectedMatch.teams}</h2>
   <p><strong>Date:</strong> ${selectedMatch.date} | <strong>Time:</strong> ${selectedMatch.time} | <strong>Stadium:</strong> ${selectedMatch.stadium}</p>
-`;
-
-// Display match image below
-document.getElementById('matchPreview').innerHTML = `
-  <img src="${selectedMatch.img}" alt="${selectedMatch.teams}">
 `;
 
 // Seat selection logic

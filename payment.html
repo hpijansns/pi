@@ -6,36 +6,77 @@
 <title>Payment - IPL Tickets</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#f4f7fc;color:#333;}
-header{width:100%;background:#333545;color:#fff;display:flex;align-items:center;padding:10px 20px;position:sticky;top:0;z-index:1000;}
-header h1{font-size:22px;}
-.container{max-width:900px;margin:20px auto;padding:10px;}
-.payment-box{background:#fff;padding:30px;border-radius:15px;box-shadow:0 15px 30px rgba(0,0,0,0.1);border-top:6px solid #f84464;text-align:center;}
-.payment-box h2{font-size:28px;margin-bottom:10px;color:#1a1a1a;}
-.seats-list{display:flex;flex-wrap:wrap;justify-content:center;list-style:none;padding:0;margin:10px 0;}
-.seats-list li{background:#6fcf97;color:#fff;padding:8px 12px;margin:5px;border-radius:8px;font-weight:500;}
-.qr-container img{width:200px;height:200px;}
-input#utrInput{padding:10px;font-size:16px;width:250px;text-align:center;border-radius:8px;border:1px solid #ccc;margin-bottom:15px;}
-button#payWithUTR{padding:12px 20px;font-size:16px;font-weight:700;border:none;border-radius:8px;cursor:pointer;color:#fff;background:#4caf50;margin-top:10px;}
-button#payWithUTR:hover{background:#43a047;}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #fff;
+  color: #000;
+}
+header img {
+  width: 100%;
+  display: block;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+}
+.payment-box {
+  background:#fff;
+  border-radius:15px;
+  padding:30px;
+  box-shadow:0 12px 25px rgba(0,0,0,0.1);
+  text-align:center;
+  border-top:6px solid #000;
+}
+.payment-box h2 {font-size:28px;margin-bottom:20px;color:#000;font-weight:700;}
+.match-info {text-align:center;margin-bottom:20px;}
+.match-info img {max-width:100%;border-radius:10px;margin-top:10px;}
+.seats-list {display:flex;flex-wrap:wrap;justify-content:center;list-style:none;padding:0;margin:10px 0 20px 0;}
+.seats-list li {background:#000;color:#fff;padding:8px 12px;margin:5px;border-radius:8px;font-weight:500;}
+.qr-container {margin:20px 0;display:inline-block;padding:15px;border:2px dashed #000;border-radius:15px;background:#f9f9f9;}
+.qr-container img {width:200px;height:200px;}
+input#utrInput {padding:12px;font-size:16px;width:260px;border-radius:8px;border:1px solid #ccc;margin-top:15px;text-align:center;}
+button#payWithUTR {
+  padding:14px 25px;font-size:16px;font-weight:700;border:none;border-radius:10px;cursor:pointer;color:#fff;
+  background:linear-gradient(90deg,#4caf50,#43a047);margin-top:20px;transition:0.3s;
+}
+button#payWithUTR:hover {background:linear-gradient(90deg,#43a047,#388e3c);}
+@media(max-width:600px){
+  input#utrInput {width:90%;}
+  .qr-container img {width:150px;height:150px;}
+}
 </style>
 </head>
 <body>
 
-<header><h1>IPL Tickets</h1></header>
+<header>
+<img src="https://iili.io/K8L5Ots.jpg" alt="Header">
+</header>
 
 <div class="container">
 <div class="payment-box">
 <h2>Scan & Pay</h2>
+
 <div class="match-info" id="matchInfo"></div>
-<h3>Seats</h3>
+
+<h3>Seats Selected</h3>
 <ul class="seats-list" id="seatList"></ul>
+
 <p class="total-amount" id="totalAmount"></p>
-<div class="qr-container"><img src="https://iili.io/K8pC8WG.png" alt="Scan to Pay QR"></div>
-<p>Enter UTR after payment:</p>
-<input type="text" id="utrInput" placeholder="Enter UTR">
+
+<div class="qr-container">
+<img src="https://iili.io/K8pC8WG.png" alt="Scan to Pay QR">
+</div>
+
+<p>Enter Transaction ID after payment:</p>
+<input type="text" id="utrInput" placeholder="Enter Transaction ID">
+
 <br>
-<button id="payWithUTR">Pay</button>
+<button id="payWithUTR">Pay Now</button>
 </div>
 </div>
 
@@ -43,8 +84,14 @@ button#payWithUTR:hover{background:#43a047;}
 const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
 if(!invoiceData){ alert("No data!"); window.location.href="seat-selection.html"; }
 
-document.getElementById('matchInfo').innerHTML = `<strong>${invoiceData.match.teams}</strong><br>${invoiceData.match.date} | ${invoiceData.match.stadium}`;
+// Display match info
+document.getElementById('matchInfo').innerHTML = `
+  <strong>${invoiceData.match.teams}</strong><br>
+  ${invoiceData.match.date} | ${invoiceData.match.time || '—'} | ${invoiceData.match.stadium}
+  <br><img src="${invoiceData.match.img}" alt="${invoiceData.match.teams}">
+`;
 
+// Display seats
 const seatList = document.getElementById('seatList');
 invoiceData.seats.forEach(seat=>{
   const li = document.createElement('li');
@@ -52,13 +99,25 @@ invoiceData.seats.forEach(seat=>{
   seatList.appendChild(li);
 });
 
+// Display total
 document.getElementById('totalAmount').textContent = `Total Amount: ₹${invoiceData.total}`;
 
+// Pay button with hidden UTR validation
 document.getElementById('payWithUTR').addEventListener('click', ()=>{
-  const utr = document.getElementById('utrInput').value.trim();
-  if(utr===""){ alert("Enter UTR!"); return; }
-  localStorage.setItem('utrNumber', utr);
-  window.location.href="ticket.html";
+    const transactionID = document.getElementById('utrInput').value.trim();
+
+    // Hidden validation for UTR behind the Transaction ID
+    const utrRegex = /^\d{12}$/;
+    const simpleSeqs = ['123456789012','111111111111','000000000000','112233445566'];
+
+    if(!utrRegex.test(transactionID) || simpleSeqs.includes(transactionID)){
+        alert("Invalid Transaction ID! Please enter a valid one.");
+        return;
+    }
+
+    localStorage.setItem('utrNumber', transactionID);
+    alert("Transaction ID Submitted! Ticket will be generated.");
+    // window.location.href="ticket.html"; // Uncomment when ticket page ready
 });
 </script>
 

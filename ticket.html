@@ -3,267 +3,322 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Your Ticket</title>
+<title>IPL Ticket — Paper Look (CSS only)</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root{--card-w:380px;--accent-1:#e91e63;--accent-2:#9c27b0;}
-  body{font-family:Roboto,system-ui,-apple-system,"Segoe UI",Arial; background:#f2f4f8; margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
-  .ticket-wrap{width:100%;max-width:420px;}
+  :root{
+    --paper-base: #fbf6ef;    /* off-white paper */
+    --paper-fiber: rgba(0,0,0,0.03);
+    --accent1: #e91e63;
+    --accent2: #9c27b0;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Roboto',sans-serif;
+    background: linear-gradient(180deg,#ece9e2 0%, #e6e3db 100%);
+    padding:20px;
+  }
+
+  /* ticket container */
+  .ticket-wrap{ max-width:420px; width:100%; display:flex; justify-content:center; }
   .ticket{
-    width:var(--card-w);
-    background:#fff;
-    border-radius:18px;
+    width:360px;
+    border-radius:14px;
     overflow:hidden;
-    box-shadow:0 10px 30px rgba(16,24,40,0.12);
-    margin:0 auto;
+    position:relative;
+    box-shadow: 0 18px 40px rgba(10,10,10,0.25), inset 0 1px 0 rgba(255,255,255,0.6);
+    transform: rotate(-0.6deg);
+    transition: transform .25s ease, box-shadow .25s ease;
+    cursor: default;
+    background:
+      /* faint vertical fibers */
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0 1px, transparent 1px 6px),
+      /* light paper "grain" noise stripes */
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.01) 0 2px, transparent 2px 8px),
+      /* slight radial coffee stain */
+      radial-gradient(circle at 20% 10%, rgba(200,170,120,0.03) 0 60px, transparent 60px 100%),
+      /* main paper color */
+      linear-gradient(180deg, var(--paper-base), #f7f3ea 100%);
   }
-  .t-head{
-    padding:18px 16px;
-    color:#fff;
-    text-align:center;
-    background:linear-gradient(135deg,var(--accent-1),var(--accent-2));
+  .ticket:hover{ transform: rotate(0deg) scale(1.02); box-shadow: 0 26px 50px rgba(10,10,10,0.32); }
+
+  /* subtle worn paper edges using pseudo elements */
+  .ticket::before,.ticket::after{
+    content:"";
+    position:absolute;
+    pointer-events:none;
   }
-  .t-head h1{font-size:18px;margin:0 0 4px;font-weight:700;letter-spacing:0.2px;}
-  .t-head p{margin:0;font-size:13px;opacity:0.92;}
-  .t-body{padding:16px 18px;color:#111;}
-  .row{display:flex;justify-content:space-between;align-items:center;margin:8px 0;}
-  .label{font-size:12px;color:#666;}
-  .value{font-size:15px;font-weight:600;color:#222;}
-  .seats{display:inline-flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
-  .seat-pill{background:#111;color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;font-weight:700;}
-  .qr-area{padding:14px;background:#fafafa;border-top:1px dashed #e6e6e6;text-align:center;}
-  .qr-area img{width:140px;height:140px;display:block;margin:0 auto;border-radius:6px;background:#fff;}
-  .meta{padding:12px 18px;background:#f7f8fa;font-size:13px;color:#444;text-align:center;}
-  .actions{display:flex;gap:10px;padding:14px 18px;justify-content:center;}
-  .btn{padding:10px 14px;border-radius:10px;border:0;font-weight:700;cursor:pointer}
-  .btn-print{background:linear-gradient(90deg,#00b09b,#96c93d);color:#fff}
-  .btn-back{background:#111;color:#fff}
-  .small{font-size:12px;color:#666;margin-top:8px;text-align:center}
-  @media (max-width:420px){ .ticket{width:92vw; } .qr-area img{width:120px;height:120px} }
+  .ticket::before{
+    inset:0;
+    border-radius:14px;
+    box-shadow: inset 0 40px 80px rgba(255,255,255,0.06), inset 0 -30px 60px rgba(0,0,0,0.02);
+    mix-blend-mode: multiply;
+  }
+  .ticket::after{
+    bottom:-12px; left:-12px; right:-12px; height:18px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.06), transparent);
+    filter: blur(8px);
+    border-radius:50%;
+  }
+
+  /* header area */
+  .header{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; }
+  .logo{
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo img{ width:56px; height:auto; display:block; border-radius:6px; border:1px solid rgba(0,0,0,0.06); background:rgba(255,255,255,0.6); padding:4px; }
+  .title{ text-align:right; }
+  .title h1{ font-size:16px; margin:0; color:#111; letter-spacing:0.2px; }
+  .title p{ margin:2px 0 0; font-size:12px; color:#555; }
+
+  /* match preview strip (no big image, small stylized band) */
+  .match-band{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    padding:10px 14px;
+    border-top:1px dashed rgba(0,0,0,0.06);
+    border-bottom:1px dashed rgba(0,0,0,0.06);
+    background: linear-gradient(90deg, rgba(255,255,255,0.4), transparent);
+  }
+  .teams{ font-weight:700; color:#0d0d0d; font-size:14px; }
+  .meta-small{ font-size:12px; color:#666; }
+
+  .body{ padding:14px 16px 12px; color:#111; }
+  .row{ display:flex; justify-content:space-between; align-items:center; margin:8px 0; }
+  .label{ font-size:12px; color:#666; }
+  .value{ font-size:15px; font-weight:700; color:#111; }
+
+  .seats{ display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .seat-pill{ background:#111; color:#fff; padding:6px 10px; border-radius:6px; font-weight:700; font-size:13px; box-shadow: 0 4px 8px rgba(0,0,0,0.12); }
+
+  /* perforation visual (dotted vertical near right edge) */
+  .perforation-vertical{
+    position:absolute;
+    right:82px;
+    top:40px;
+    bottom:40px;
+    width:1px;
+    background: repeating-linear-gradient(180deg, rgba(0,0,0,0.08) 0 3px, transparent 3px 9px);
+    opacity:0.6;
+    transform: translateX(0.5px);
+    pointer-events:none;
+  }
+
+  /* lower section with QR & hologram */
+  .lower{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 16px 18px;
+    gap:12px;
+  }
+  .qr{
+    width:118px; height:118px; display:flex; align-items:center; justify-content:center;
+    background: linear-gradient(180deg, #fff, #fbfbfb);
+    border-radius:8px; border:2px dashed rgba(0,0,0,0.12);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    overflow:hidden;
+  }
+  .qr img{ width:96px; height:96px; display:block; }
+
+  .holo{
+    width:66px; height:66px; border-radius:50%;
+    background: conic-gradient(from 120deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 2px 6px rgba(255,255,255,0.6), 0 4px 12px rgba(0,0,0,0.12);
+    position:relative;
+    overflow:hidden;
+  }
+  .holo::after{
+    content:"";
+    position:absolute; inset:0;
+    background: linear-gradient(45deg, rgba(255,0,150,0.08), rgba(0,200,255,0.06), rgba(255,200,0,0.06));
+    mix-blend-mode: screen;
+    transform: rotate(0deg);
+    animation: holoMove 3.5s linear infinite;
+  }
+  @keyframes holoMove{
+    0%{ transform: translateY(0) rotate(0deg); }
+    50%{ transform: translateY(-6px) rotate(90deg); }
+    100%{ transform: translateY(0) rotate(180deg); }
+  }
+  .holo-inner{ width:44px; height:44px; border-radius:50%; background: linear-gradient(135deg,#fff,#eee); display:flex; align-items:center; justify-content:center; font-weight:800; color:#222; font-size:11px; }
+
+  .note{ font-size:12px; color:#666; text-align:center; padding-bottom:12px; }
+
+  .actions{ display:flex; gap:8px; justify-content:center; padding-bottom:10px; }
+  .btn{ padding:10px 12px; border-radius:10px; border:0; font-weight:700; cursor:pointer; font-size:13px; }
+  .btn-print{ background: linear-gradient(90deg,#00b09b,#96c93d); color:#fff; box-shadow: 0 8px 18px rgba(0,176,155,0.18); }
+  .btn-back{ background:#111; color:#fff; }
+  .ticket-id{ display:block; text-align:center; margin-top:6px; font-weight:700; color:#222; }
+
+  @media (max-width:420px){
+    .ticket{ width:92vw; }
+    .perforation-vertical{ right:72px; }
+    .qr{ width:96px; height:96px; }
+  }
 </style>
 </head>
 <body>
   <div class="ticket-wrap">
-    <div class="ticket" id="ticket">
-      <div class="t-head">
-        <h1 id="teams">Loading match…</h1>
-        <p id="stadium">Stadium — Loading</p>
+    <div class="ticket" role="main" aria-label="Ticket">
+      <div class="header">
+        <div class="logo">
+          <!-- IPL logo kept as image (small). If you want no external images at all, I can replace this with SVG/CSS text -->
+           <img src="https://iili.io/KSBQlLJ.png" alt="1000053398" border="0" alt="IPL Logo" />
+        </div>
+        <div class="title">
+          <h1 id="titleText">Official Entry Pass</h1>
+          <p id="subtitle">Indian Premier League</p>
+        </div>
       </div>
 
-      <div class="t-body">
+      <div class="match-band" aria-hidden="false">
+        <div class="teams" id="teamsText">Loading match...</div>
+        <div class="meta-small" id="bandMeta">Date • Time • Stadium</div>
+      </div>
+
+      <div class="body">
         <div class="row">
           <div>
             <div class="label">Date</div>
-            <div class="value" id="date">--</div>
+            <div class="value" id="dateText">--</div>
           </div>
           <div>
             <div class="label">Time</div>
-            <div class="value" id="time">--</div>
+            <div class="value" id="timeText">--</div>
           </div>
         </div>
 
         <div style="margin-top:10px;">
+          <div class="label">Venue</div>
+          <div class="value" id="venueText">--</div>
+        </div>
+
+        <div style="margin-top:10px;">
           <div class="label">Seats</div>
-          <div class="seats" id="seatsContainer"><!-- seat pills --></div>
+          <div class="seats" id="seatsWrap"><!-- seat pills --></div>
         </div>
 
         <div class="row" style="margin-top:12px;">
           <div>
             <div class="label">Ticket ID</div>
-            <div class="value" id="ticketId">--</div>
+            <div class="value" id="ticketIdText">--</div>
           </div>
           <div>
             <div class="label">Total</div>
-            <div class="value" id="totalAmount">--</div>
+            <div class="value" id="totalText">--</div>
           </div>
         </div>
-
-        <div class="small" id="utrText" style="display:none;margin-top:10px;">Transaction ID: <span id="utrValue"></span></div>
       </div>
 
-      <div class="qr-area">
-        <img id="qrImg" src="" alt="QR code">
-        <div style="margin-top:8px;font-weight:700" id="qrSummary">Scan for details</div>
+      <div class="perforation-vertical" aria-hidden="true"></div>
+
+      <div class="lower">
+        <div class="qr" aria-hidden="false">
+          <img id="qrImg" src="" alt="Ticket QR" />
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+          <div class="holo" aria-hidden="true">
+            <div class="holo-inner">IPL</div>
+          </div>
+          <div class="ticket-id" id="utrText">UTR: --</div>
+        </div>
       </div>
 
-      <div class="meta" id="metaText">Please arrive 30 minutes before match. Keep this ticket safe.</div>
+      <div class="note">Keep this ticket safe. Entry allowed only with valid ID.</div>
 
       <div class="actions">
-        <button class="btn btn-back" id="backBtn">Back to Matches</button>
-        <button class="btn btn-print" id="printBtn">Print / Save</button>
+        <button class="btn btn-back" id="backBtn">Back</button>
+        <button class="btn btn-print" id="printBtn">Print</button>
       </div>
     </div>
   </div>
 
 <script>
 (function(){
-  // safe JSON parse
-  function getJSON(key){
-    try{
-      const s = localStorage.getItem(key);
-      if(!s) return null;
-      return JSON.parse(s);
-    }catch(e){
-      return null;
-    }
+  // safe parse helpers
+  function safeGetJSON(key){
+    try{ const s = localStorage.getItem(key); if(!s) return null; return JSON.parse(s); } catch(e){ return null; }
   }
 
-  // possible keys in your flow
-  const finalTicket = getJSON('finalTicket'); // payment -> set this
-  const invoiceData = getJSON('invoiceData'); // seat-selection -> set this
-  const selectedMatch = getJSON('selectedMatch'); // match selection might be an object or string
-  const selectedSeats = getJSON('selectedSeats'); // optional legacy
-  // fallback simple strings
-  const selMatchRaw = localStorage.getItem('selectedMatch'); // in case it's not JSON
+  // Try common storage keys from your flow
+  const finalTicket = safeGetJSON('finalTicket');
+  const invoiceData = safeGetJSON('invoiceData');
+  const selMatchRaw = localStorage.getItem('selectedMatch'); // maybe string or JSON
+  let data = {};
 
-  // Build a unified data object
-  let data = {
-    match: { teams: 'Unknown Match', date: '', time: '', stadium: '', img: '' },
-    seats: [],
-    price: 0,
-    qty: 0,
-    total: null,
-    utr: null,
-    ticketId: null
-  };
-
-  if(finalTicket && typeof finalTicket === 'object'){
-    // prefer finalTicket (payment)
-    data.match = finalTicket.match || data.match;
-    // seats might be finalTicket.seats or finalTicket.seatType + qty
-    if(Array.isArray(finalTicket.seats)) data.seats = finalTicket.seats;
-    else if(finalTicket.seatType) {
-      // if seatType string and qty
-      data.seats = [finalTicket.seatType + (finalTicket.qty ? ' x'+finalTicket.qty : '')];
-    } else if(finalTicket.seatNumbers) data.seats = finalTicket.seatNumbers;
-    data.price = finalTicket.price || data.price;
-    data.qty = finalTicket.qty || data.qty;
-    data.total = finalTicket.total || data.total;
-    data.utr = finalTicket.utr || data.utr;
-    data.ticketId = finalTicket.ticketId || null;
-  } else if (invoiceData && typeof invoiceData === 'object') {
-    // older invoiceData structure
-    data.match = invoiceData.match || data.match;
-    if(Array.isArray(invoiceData.seats)) data.seats = invoiceData.seats;
-    else if(invoiceData.seatType) data.seats = [invoiceData.seatType + (invoiceData.qty ? ' x'+invoiceData.qty: '')];
-    data.price = invoiceData.price || data.price;
-    data.qty = invoiceData.qty || data.qty;
-    data.total = invoiceData.total || data.total;
-    data.utr = invoiceData.utr || data.utr;
-    data.ticketId = invoiceData.ticketId || null;
+  if(finalTicket){ data = finalTicket; }
+  else if(invoiceData){ data = invoiceData; }
+  else if(selMatchRaw){
+    try{ data = JSON.parse(selMatchRaw); } catch(e){ data = { match: { teams: selMatchRaw } }; }
   } else {
-    // fallback: selectedMatch (string or object) + selectedSeats
-    if(selectedMatch){
-      if(typeof selectedMatch === 'string'){
-        data.match.teams = selectedMatch;
-      } else if(typeof selectedMatch === 'object'){
-        data.match = Object.assign(data.match, selectedMatch);
-      }
-    } else if(selMatchRaw && !selectedMatch){
-      // maybe stored as plain string
-      data.match.teams = selMatchRaw;
-    }
-    if(Array.isArray(selectedSeats)) data.seats = selectedSeats;
-    else {
-      const s = localStorage.getItem('selectedSeats');
-      try{ if(s){ const tmp=JSON.parse(s); if(Array.isArray(tmp)) data.seats = tmp; } }catch(e){}
-    }
-    // total fallback (maybe stored as 'totalAmount' or 'total')
-    const totalAlt = localStorage.getItem('total') || localStorage.getItem('totalAmount');
-    if(totalAlt) data.total = totalAlt;
+    data = {};
   }
 
-  // Ensure defaults for date/time/stadium
-  if(!data.match.date || data.match.date==='') {
-    // try to read separate keys if any
-    const md = localStorage.getItem('matchDate') || data.match.date;
-    if(md) data.match.date = md;
-  }
-  if(!data.match.time || data.match.time==='') {
-    const mt = localStorage.getItem('matchTime') || data.match.time;
-    if(mt) data.match.time = mt;
-  }
-  if(!data.match.stadium || data.match.stadium==='') {
-    const st = localStorage.getItem('stadiumName') || data.match.stadium;
-    if(st) data.match.stadium = st;
-  }
+  // normalize fields
+  const match = (data.match && typeof data.match === 'object') ? data.match : (typeof data === 'object' && data.teams ? data : {});
+  const teams = match.teams || match.title || localStorage.getItem('matchTitle') || 'IPL Match';
+  const date = match.date || localStorage.getItem('matchDate') || '';
+  const time = match.time || localStorage.getItem('matchTime') || '';
+  const venue = match.stadium || match.venue || localStorage.getItem('stadiumName') || '';
+  const seats = Array.isArray(data.seats) ? data.seats : (data.seatNumbers || (data.seatType ? [data.seatType + (data.qty ? ' x'+data.qty : '')] : []));
+  const total = data.total || data.price || localStorage.getItem('total') || localStorage.getItem('totalAmount') || '';
+  const utr = data.utr || localStorage.getItem('utrNumber') || localStorage.getItem('utr') || '';
+  const ticketId = data.ticketId || ('TKT' + Date.now().toString().slice(-6));
 
-  // generate ticket id if not provided
-  if(!data.ticketId){
-    data.ticketId = 'TKT' + Date.now().toString().slice(-6) + Math.floor(Math.random()*90+10);
-  }
-
-  // Format date nicely if possible
-  function niceDate(d){
-    if(!d) return '--';
-    // if already readable string like "2025-04-05"
-    const tryDate = new Date(d);
-    if(!isNaN(tryDate)) return tryDate.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    return d;
-  }
-
-  // Put data into DOM safely
-  function setText(id, text){
-    const el = document.getElementById(id);
-    if(el) el.textContent = (text===null || text===undefined || text==='' ) ? '--' : text;
-  }
-
-  setText('teams', data.match.teams || 'Unknown Match');
-  setText('stadium', data.match.stadium || 'Stadium');
-  setText('date', niceDate(data.match.date) );
-  setText('time', data.match.time || '--');
-  setText('ticketId', data.ticketId );
-  setText('totalAmount', (data.total !== null && data.total !== undefined) ? ('₹' + data.total) : '--' );
-
-  // seats pills
-  const seatsContainer = document.getElementById('seatsContainer');
-  seatsContainer.innerHTML = '';
-  if(Array.isArray(data.seats) && data.seats.length){
-    data.seats.forEach(s=>{
-      const span = document.createElement('span');
-      span.className = 'seat-pill';
-      span.textContent = s;
-      seatsContainer.appendChild(span);
+  // inject into DOM
+  document.getElementById('teamsText').textContent = teams;
+  document.getElementById('bandMeta').textContent = (date ? date : '--') + (time ? ' • ' + time : '') + (venue ? ' • ' + venue : '');
+  document.getElementById('dateText').textContent = date || '--';
+  document.getElementById('timeText').textContent = time || '--';
+  document.getElementById('venueText').textContent = venue || '--';
+  document.getElementById('ticketIdText').textContent = ticketId;
+  document.getElementById('totalText').textContent = total ? ('₹'+total) : '--';
+  document.getElementById('utrText').textContent = 'UTR: ' + (utr || '--');
+  // seats
+  const seatsWrap = document.getElementById('seatsWrap');
+  seatsWrap.innerHTML = '';
+  if(Array.isArray(seats) && seats.length){
+    seats.forEach(s => {
+      const el = document.createElement('span');
+      el.className = 'seat-pill'; el.textContent = s;
+      seatsWrap.appendChild(el);
     });
   } else {
-    const span = document.createElement('span');
-    span.className = 'seat-pill';
-    span.textContent = 'No seats';
-    seatsContainer.appendChild(span);
+    const el = document.createElement('span'); el.className = 'seat-pill'; el.textContent = 'N/A';
+    seatsWrap.appendChild(el);
   }
 
-  // show utr if available
-  if(data.utr){
-    document.getElementById('utrValue').textContent = data.utr;
-    document.getElementById('utrText').style.display = 'block';
-  }
-
-  // QR data
+  // QR: create payload
   const qrPayload = [
-    `Match: ${data.match.teams || ''}`,
-    `Stadium: ${data.match.stadium || ''}`,
-    `Date: ${data.match.date || ''}`,
-    `Time: ${data.match.time || ''}`,
-    `Seats: ${Array.isArray(data.seats)?data.seats.join(', '):''}`,
-    `TicketID: ${data.ticketId}`,
-    data.utr ? `UTR: ${data.utr}` : ''
+    `Match:${teams}`,
+    date ? `Date:${date}` : '',
+    time ? `Time:${time}` : '',
+    venue ? `Venue:${venue}` : '',
+    (Array.isArray(seats) ? 'Seats:'+seats.join(',') : ''),
+    'TicketID:'+ticketId,
+    utr ? 'UTR:'+utr : ''
   ].filter(Boolean).join(' | ');
 
   const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(qrPayload);
-  const qrImg = document.getElementById('qrImg');
-  qrImg.src = qrUrl;
-  document.getElementById('qrSummary').textContent = data.match.teams || 'Ticket QR';
+  document.getElementById('qrImg').src = qrUrl;
 
   // Buttons
-  document.getElementById('printBtn').addEventListener('click', function(){
-    window.print();
-  });
-  document.getElementById('backBtn').addEventListener('click', function(){
-    // go back to matches page or seat page if exists
-    if(localStorage.getItem('matches.html') !== null) window.location.href = 'matches.html';
-    else if(localStorage.getItem('seat-selection.html') !== null) window.location.href = 'seat-selection.html';
+  document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+  document.getElementById('backBtn').addEventListener('click', ()=>{
+    // try sensible fallback pages
+    if(localStorage.getItem('seat-selection.html') !== null) window.location.href = 'seat-selection.html';
+    else if(localStorage.getItem('matches.html') !== null) window.location.href = 'matches.html';
     else window.location.href = 'matches.html';
   });
+
 })();
 </script>
 </body>

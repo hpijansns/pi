@@ -6,30 +6,45 @@
 <title>Invoice - IPL Tickets</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#f4f7fc;color:#333;}
-header{width:100%;background:#333545;color:#fff;display:flex;align-items:center;padding:10px 20px;position:sticky;top:0;z-index:1000;}
-header h1{font-size:22px;}
-.container{max-width:900px;margin:20px auto;padding:10px;}
-.invoice-box{background:#fff;padding:30px;border-radius:15px;box-shadow:0 15px 30px rgba(0,0,0,0.1);border-top:6px solid #f84464;text-align:center;}
-.invoice-box h2{font-size:28px;margin-bottom:10px;color:#1a1a1a;}
-.match-info{font-size:16px;color:#555;margin-bottom:15px;}
-.seats-list{display:flex;flex-wrap:wrap;justify-content:center;list-style:none;padding:0;margin:10px 0;}
-.seats-list li{background:#6fcf97;color:#fff;padding:8px 12px;margin:5px;border-radius:8px;font-weight:500;}
-.total{font-size:20px;font-weight:700;margin-top:10px;color:#1a1a1a;}
-button#pay{padding:12px 20px;font-size:16px;font-weight:700;border:none;border-radius:8px;cursor:pointer;margin-top:15px;color:#fff;background:#4caf50;}
-button#pay:hover{background:#43a047;}
+body{margin:0;padding:0;font-family:'Roboto',sans-serif;background:#fff;color:#000;}
+header img{width:100%;display:block;margin-bottom:20px;border-radius:5px;}
+.container{max-width:800px;margin:20px auto;padding:20px;}
+.invoice-box{background:#fff;padding:30px;border-radius:12px;box-shadow:0 8px 20px rgba(0,0,0,0.08);border-top:6px solid #000;}
+.invoice-box h2{text-align:center;font-size:28px;margin-bottom:20px;font-weight:700;color:#000;}
+.match-info{text-align:center;margin-bottom:20px;}
+.match-info img{max-width:100%;border-radius:8px;margin-top:10px;}
+.seats-table{width:100%;border-collapse:collapse;margin-top:20px;}
+.seats-table th, .seats-table td{border:1px solid #000;padding:10px;text-align:center;font-size:14px;}
+.seats-table th{background:#f4f4f4;font-weight:700;}
+.total{text-align:right;font-size:20px;font-weight:700;margin-top:20px;}
+button#pay{display:block;margin:25px auto;padding:12px 25px;font-size:16px;font-weight:700;border:none;border-radius:8px;background:#4CAF50;color:#fff;cursor:pointer;transition:0.3s;}
+button#pay:hover{background:#43A047;}
+@media(max-width:600px){
+    .seats-table th, .seats-table td{padding:6px;font-size:12px;}
+}
 </style>
 </head>
 <body>
 
-<header><h1>IPL Tickets</h1></header>
+<header>
+<img src="https://iili.io/K8L5Ots.jpg" alt="Header">
+</header>
 
 <div class="container">
 <div class="invoice-box">
 <h2>Invoice</h2>
 <div class="match-info" id="matchInfo"></div>
-<h3>Selected Seats</h3>
-<ul class="seats-list" id="seatList"></ul>
+
+<table class="seats-table">
+<thead>
+<tr>
+<th>Seat Number</th>
+<th>Price (₹)</th>
+</tr>
+</thead>
+<tbody id="seatList"></tbody>
+</table>
+
 <p class="total">Total Amount: ₹<span id="totalAmount">0</span></p>
 <button id="pay">Proceed to Payment</button>
 </div>
@@ -39,19 +54,26 @@ button#pay:hover{background:#43a047;}
 const invoiceData = JSON.parse(localStorage.getItem('invoiceData'));
 if(!invoiceData){ alert("No invoice data!"); window.location.href="seat-selection.html"; }
 
-document.getElementById('matchInfo').innerHTML = `<strong>${invoiceData.match.teams}</strong><br>${invoiceData.match.date} | ${invoiceData.match.stadium}`;
+document.getElementById('matchInfo').innerHTML = `
+  <strong>${invoiceData.match.teams}</strong><br>
+  ${invoiceData.match.date} | ${invoiceData.match.time || '—'} | ${invoiceData.match.stadium}
+  <br><img src="${invoiceData.match.img}" alt="${invoiceData.match.teams}">
+`;
 
 const seatList = document.getElementById('seatList');
 invoiceData.seats.forEach(seat=>{
-  const li = document.createElement('li');
-  li.textContent = seat;
-  seatList.appendChild(li);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td>${seat}</td><td>₹${invoiceData.total/invoiceData.seats.length}</td>`;
+  seatList.appendChild(tr);
 });
+
 document.getElementById('totalAmount').textContent = invoiceData.total;
 
+// Open payment page in new tab
 document.getElementById('pay').addEventListener('click', ()=>{
-  window.location.href="payment.html";
+  window.open("payment.html", "_blank");
 });
 </script>
+
 </body>
 </html>

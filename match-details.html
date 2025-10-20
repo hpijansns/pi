@@ -7,120 +7,126 @@
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;}
-body{background:#fff;color:#000;}
+html,body{background:#fff;width:100%;}
+
+/* Header image */
+header{
+    width:100%;
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+header img{
+    width:100%;
+    height:auto;
+    display:block;
+}
+
+/* Container */
 .container{max-width:900px;margin:20px auto;padding:10px;}
-.match-info{background:#fff;padding:15px;border-radius:10px;box-shadow:0 3px 15px rgba(0,0,0,0.1);margin-bottom:10px;text-align:center;}
+
+/* Match Info */
+.match-info{background:#fff;padding:15px;border-radius:10px;box-shadow:0 3px 15px rgba(0,0,0,0.1);margin-bottom:20px;text-align:center;}
 .match-info h2{margin-bottom:5px;}
 .match-info p{margin-bottom:5px;color:#555;font-size:14px;}
-.seat-options{display:flex;flex-wrap:wrap;justify-content:center;margin:15px 0;}
-.seat{padding:10px 15px;margin:5px;border-radius:8px;cursor:pointer;background:#f0f0f0;transition:0.3s;}
-.seat.active{background:#f84464;color:#fff;}
-.description{text-align:center;margin:10px 0;color:#333;font-size:14px;}
-.price, .total{text-align:center;margin:10px 0;font-size:16px;font-weight:600;}
-.qty{text-align:center;margin:10px 0;}
-.qty button{padding:5px 10px;margin:0 5px;cursor:pointer;}
-.qty input{width:40px;text-align:center;}
-.proceed-btn{display:block;margin:20px auto;padding:10px 25px;background:#f84464;color:#fff;border:none;border-radius:5px;font-size:16px;cursor:pointer;}
-.proceed-btn:hover{background:#c4242b;}
+.match-info img{max-width:100%;border-radius:8px;margin-top:10px;}
+
+/* Seat selection */
+.arena{background:#4caf50;padding:20px;border-radius:10px;display:grid;grid-template-columns:repeat(12,40px);gap:5px;justify-content:center;}
+.seat{width:40px;height:40px;background:#fff;border-radius:5px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:0.3s;}
+.seat.selected{background:#ff6b6b;color:#fff;}
+.seat.booked{background:#ccc;cursor:default;}
+
+/* Summary */
+.summary{margin-top:20px;text-align:center;font-size:18px;}
+button#proceed{margin-top:10px;padding:10px 20px;background:#f84464;color:#fff;border:none;border-radius:5px;cursor:pointer;font-size:16px;}
+button#proceed:hover{background:#c4242b;}
+
+/* Responsive */
 @media(max-width:600px){
-  .seat{padding:8px 10px;margin:3px;}
-  .price, .total{font-size:14px;}
+  .arena{grid-template-columns:repeat(6,40px);}
+  .seat{width:35px;height:35px;font-size:11px;}
 }
 </style>
 </head>
 <body>
 
+<!-- Header image -->
+<header>
+<img src="https://iili.io/K8L5Ots.jpg" alt="Header Image">
+</header>
+
 <div class="container">
-  <!-- Match info -->
+  <!-- Match info with team image -->
   <div class="match-info" id="matchInfo"></div>
 
-  <!-- Ticket selection -->
-  <h2 style="text-align:center;">Select Ticket Type</h2>
-  <div class="seat-options">
-    <div class="seat" data-price="1000" data-desc="Affordable seating, usually in the upper stands.">General Stand</div>
-    <div class="seat" data-price="1500" data-desc="Better view, closer to the field.">Premium Stand</div>
-    <div class="seat" data-price="3500" data-desc="Good view near pitch.">Pavilion Stand</div>
-    <div class="seat" data-price="6000" data-desc="Exclusive VIP access.">VIP Stand</div>
-    <div class="seat" data-price="8000" data-desc="Luxury private box.">Corporate Box</div>
-    <div class="seat" data-price="10000" data-desc="High-end hospitality and lounge.">Hospitality Box</div>
-    <div class="seat" data-price="16000" data-desc="Topmost premium view with food & drinks.">Skybox/Lounge</div>
+  <h2 style="text-align:center;">Select Your Seats</h2>
+  <div class="arena" id="arena"></div>
+
+  <div class="summary">
+    Total Seats: <span id="totalSeats">0</span> | Total Amount: ₹<span id="totalAmount">0</span>
+    <br>
+    <button id="proceed">Proceed to Invoice</button>
   </div>
-
-  <div class="description" id="descBox" style="display:none;"></div>
-  <div class="price">Price per Ticket: ₹<span id="ticketPrice">0</span></div>
-
-  <div class="qty">
-    <strong>Quantity:</strong>
-    <button onclick="changeQty(-1)">-</button>
-    <input type="text" id="qty" value="1" readonly>
-    <button onclick="changeQty(1)">+</button>
-  </div>
-
-  <div class="total">Total: ₹ <span id="total">0</span></div>
-
-  <button class="proceed-btn" onclick="goToPayment()">Proceed to Booking</button>
 </div>
 
 <script>
-let selectedSeat = null;
-let price = 0;
-
-// Load selected match info
+// ✅ Match data receive from previous page
 const selectedMatch = JSON.parse(localStorage.getItem('selectedMatch'));
-if(!selectedMatch){
-  alert("No match selected. Redirecting to matches page.");
-  window.location.href="matches.html";
+
+if (selectedMatch) {
+  // Show match details
+  document.getElementById('matchInfo').innerHTML = `
+    <h2>${selectedMatch.teams}</h2>
+    <p><strong>Date:</strong> ${selectedMatch.date} | <strong>Time:</strong> ${selectedMatch.time} | <strong>Stadium:</strong> ${selectedMatch.stadium}</p>
+    <img src="${selectedMatch.img}" alt="${selectedMatch.teams}">
+  `;
+} else {
+  // Fallback if no match selected
+  document.getElementById('matchInfo').innerHTML = `
+    <h2>No Match Selected</h2>
+    <p>Please go back and select a match.</p>
+  `;
 }
 
-// Display match info
-document.getElementById('matchInfo').innerHTML = `
-  <h2>${selectedMatch.teams}</h2>
-  <p><strong>Date:</strong> ${selectedMatch.date} | <strong>Time:</strong> ${selectedMatch.time} | <strong>Stadium:</strong> ${selectedMatch.stadium}</p>
-`;
+// ✅ Seat selection logic
+const arena = document.getElementById('arena');
+const rows = 10, cols = 12;
+const seatPrice = 1000;
+let selectedSeats = [];
 
-// Seat selection logic
-document.querySelectorAll('.seat').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.seat').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    selectedSeat = btn.innerText;
-    price = parseInt(btn.dataset.price);
-    document.getElementById('ticketPrice').innerText = price;
-    const descBox = document.getElementById('descBox');
-    descBox.innerText = `${selectedSeat} – ${btn.dataset.desc}`;
-    descBox.style.display = 'block';
-    updateTotal();
-  });
-});
+for(let r=1;r<=rows;r++){
+  for(let c=1;c<=cols;c++){
+    const seat = document.createElement('div');
+    seat.className = 'seat';
+    seat.dataset.seat = `R${r}C${c}`;
+    if(Math.random()<0.2) seat.classList.add('booked'); // Random booked seats
+    seat.innerText = `${r}${String.fromCharCode(64+c)}`;
+    arena.appendChild(seat);
 
-function changeQty(val){
-  let qty = parseInt(document.getElementById('qty').value);
-  qty = Math.max(1, qty+val);
-  document.getElementById('qty').value = qty;
-  updateTotal();
-}
-
-function updateTotal(){
-  const qty = parseInt(document.getElementById('qty').value);
-  document.getElementById('total').innerText = price*qty;
-}
-
-function goToPayment(){
-  const qty = parseInt(document.getElementById('qty').value);
-  if(!selectedSeat || price===0){
-    alert("Please select a ticket type.");
-    return;
+    seat.addEventListener('click', ()=>{
+      if(seat.classList.contains('booked')) return;
+      seat.classList.toggle('selected');
+      updateSummary();
+    });
   }
-  const invoiceData = {
-    match: selectedMatch,
-    seatType: selectedSeat,
-    price: price,
-    qty: qty,
-    total: price*qty
-  };
-  localStorage.setItem("invoiceData", JSON.stringify(invoiceData));
-  window.location.href="invoice.html;
 }
+
+function updateSummary(){
+  selectedSeats = Array.from(document.querySelectorAll('.seat.selected')).map(s=>s.dataset.seat);
+  document.getElementById('totalSeats').innerText = selectedSeats.length;
+  document.getElementById('totalAmount').innerText = selectedSeats.length * seatPrice;
+}
+
+document.getElementById('proceed').addEventListener('click', ()=>{
+  if(selectedSeats.length===0){ alert("Select at least 1 seat"); return; }
+  localStorage.setItem('invoiceData', JSON.stringify({
+    match: selectedMatch,
+    seats: selectedSeats,
+    total: selectedSeats.length*seatPrice
+  }));
+  window.location.href="invoice.html";
+});
 </script>
 
 </body>

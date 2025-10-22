@@ -47,7 +47,6 @@ button:hover{background:#c4242b;}
   <div id="login-box">
     <h3>Admin Login</h3>
 
-    <!-- Username is masked by default (type="password") -->
     <label>Username (hidden)</label>
     <div class="input-with-eye">
       <input type="password" id="login-username" placeholder="Enter username (hidden)">
@@ -69,7 +68,6 @@ button:hover{background:#c4242b;}
 <div class="container hidden" id="admin-container">
   <div class="top-actions">
     <div class="footer-right">
-      <!-- logged-as shows masked username (only last 2 digits), or simple "Logged in" -->
       <div id="logged-as" style="font-size:14px;color:#333;margin-right:8px;"></div>
       <button onclick="showChangeCreds()">Change Credentials</button>
       <button onclick="logout()">Logout</button>
@@ -77,8 +75,8 @@ button:hover{background:#c4242b;}
   </div>
 
   <h2>Update Banner / Header</h2>
-  <label>Banner Image URL</label>
-  <input type="text" id="banner-url" placeholder="Paste image URL here">
+  <label>Banner Image</label>
+  <input type="file" id="banner-file" accept="image/*">
   <button onclick="updateBanner()">Update Banner</button>
 
   <h2>Manage Matches</h2>
@@ -90,13 +88,12 @@ button:hover{background:#c4242b;}
   <input type="time" id="match-time">
   <label>Stadium</label>
   <input type="text" id="match-stadium" placeholder="Stadium Name">
-  <label>Match Image URL</label>
-  <input type="text" id="match-img" placeholder="Match Card Image URL">
+  <label>Match Image</label>
+  <input type="file" id="match-file" accept="image/*">
   <button onclick="addMatch()">Add Match</button>
 
   <div id="matches-list"></div>
 
-  <!-- Change credentials (username/password inputs are masked by default) -->
   <div id="change-creds" class="hidden" style="margin-top:20px;padding:12px;border:1px dashed #ddd;border-radius:6px;">
     <h3 style="margin:0 0 8px 0;">Change Admin Credentials</h3>
     <label>New Username (hidden)</label>
@@ -116,13 +113,11 @@ button:hover{background:#c4242b;}
 </div>
 
 <script>
-/* Client-side admin panel script with masked username/password display */
-
-/* Default credentials (kept in code but not displayed) */
+/* Default credentials */
 const DEFAULT_USER = '7627055204';
 const DEFAULT_PASS = 'Pooja2005';
 
-/* helper: get credentials from localStorage or default */
+/* Get credentials */
 function getCreds(){
   return {
     user: localStorage.getItem('adminUser') || DEFAULT_USER,
@@ -130,7 +125,7 @@ function getCreds(){
   };
 }
 
-/* mask username: show only last 2 characters, prefix with asterisks */
+/* Mask username */
 function maskUsername(u){
   if(!u) return '';
   const len = u.length;
@@ -138,31 +133,25 @@ function maskUsername(u){
   return '*'.repeat(Math.max(0, len-2)) + u.slice(-2);
 }
 
-/* show/hide change creds UI */
-function showChangeCreds(){
-  document.getElementById('change-creds').classList.remove('hidden');
-}
-function hideChangeCreds(){
-  document.getElementById('change-creds').classList.add('hidden');
-}
+/* Show/hide change creds */
+function showChangeCreds(){ document.getElementById('change-creds').classList.remove('hidden'); }
+function hideChangeCreds(){ document.getElementById('change-creds').classList.add('hidden'); }
 
-/* Save new credentials (stored but not shown in plain text) */
+/* Save new credentials */
 function saveNewCreds(){
   const u = document.getElementById('new-username').value;
   const p = document.getElementById('new-password').value;
   if(!u || !p){ alert('Fill both fields to change credentials.'); return; }
-  // store as plain text in localStorage for demo (production: encrypt/send to server)
   localStorage.setItem('adminUser', u);
   localStorage.setItem('adminPass', p);
   alert('Credentials updated.');
   document.getElementById('new-username').value = '';
   document.getElementById('new-password').value = '';
   hideChangeCreds();
-  // update masked display
   document.getElementById('logged-as').innerText = 'Logged in: ' + maskUsername(u);
 }
 
-/* Login logic (username input is masked while typing by using type=password) */
+/* Login */
 function attemptLogin(){
   const uname = document.getElementById('login-username').value;
   const pwd = document.getElementById('login-password').value;
@@ -174,9 +163,7 @@ function attemptLogin(){
     document.getElementById('logged-as').innerText = 'Logged in: ' + maskUsername(creds.user);
     loadBannerToField();
     displayMatches();
-  } else {
-    alert('Invalid username or password.');
-  }
+  } else { alert('Invalid username or password.'); }
 }
 
 /* Logout */
@@ -184,135 +171,132 @@ function logout(){
   sessionStorage.removeItem('iplLoggedIn');
   document.getElementById('admin-container').classList.add('hidden');
   document.getElementById('login-overlay').style.display = 'flex';
-  // clear input fields
-  document.getElementById('login-username').value = '';
-  document.getElementById('login-password').value = '';
+  document.getElementById('login-username').value='';
+  document.getElementById('login-password').value='';
 }
 
-/* Auto-login if session active */
+/* Auto-login */
 if(sessionStorage.getItem('iplLoggedIn') === 'true'){
-  document.getElementById('login-overlay').style.display = 'none';
+  document.getElementById('login-overlay').style.display='none';
   document.getElementById('admin-container').classList.remove('hidden');
-  const creds = getCreds();
-  document.getElementById('logged-as').innerText = 'Logged in: ' + maskUsername(creds.user);
+  const creds=getCreds();
+  document.getElementById('logged-as').innerText='Logged in: '+maskUsername(creds.user);
 }
 
-/* Banner & Matches data */
-let matches = JSON.parse(localStorage.getItem('iplMatches')) || [
-    {teams:"Mumbai Indians vs Chennai Super Kings", date:"2025-04-05", time:"19:30", stadium:"Wankhede Stadium", img:"https://iili.io/K8L5Ots.jpg"}
-];
-let banner = localStorage.getItem('bannerURL') || "https://iili.io/K8L5Ots.jpg";
-document.getElementById('banner-url').value = banner;
+/* Banner & Matches */
+let matches = JSON.parse(localStorage.getItem('iplMatches')) || [];
+let banner = localStorage.getItem('bannerURL') || "";
+
+/* Load banner */
+function loadBannerToField(){
+  // nothing needed, file input
+}
 
 /* Update Banner */
 function updateBanner(){
-    const url = document.getElementById('banner-url').value.trim();
-    if(!url){ alert('Paste an image URL'); return; }
-    localStorage.setItem('bannerURL', url);
-    alert("Banner updated! Homepage will show the new banner.");
-}
-function loadBannerToField(){
-  const url = localStorage.getItem('bannerURL') || banner;
-  document.getElementById('banner-url').value = url;
+  const fileInput = document.getElementById('banner-file');
+  if(fileInput.files.length===0){ alert('Select an image file'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataURL = e.target.result;
+    localStorage.setItem('bannerURL', dataURL);
+    alert('Banner updated!');
+    fileInput.value = "";
+  }
+  reader.readAsDataURL(fileInput.files[0]);
 }
 
 /* Display Matches */
 function displayMatches(){
-    const container = document.getElementById('matches-list');
-    container.innerHTML = "";
-    if(matches.length === 0){
-      container.innerHTML = '<div style="color:#666;margin-top:10px;">No matches added yet.</div>';
-      return;
-    }
-    matches.forEach((match,index)=>{
-        let div=document.createElement('div');
-        div.className='match-item';
-        div.innerHTML=`
-        <div style="max-width:70%;">
-          <strong>${match.teams}</strong><br>
-          Date: ${match.date} &nbsp; | &nbsp; Time: ${match.time ? match.time : '—'} <br>
-          Stadium: ${match.stadium}<br>
-          <img src="${match.img}" alt="${match.teams}" style="width:140px;height:80px;object-fit:cover;margin-top:8px;border-radius:4px;">
-        </div>
-        <div style="text-align:right;">
-          <button onclick="editMatch(${index})">Edit</button>
-          <button onclick="deleteMatch(${index})">Delete</button>
-        </div>`;
-        container.appendChild(div);
-    });
+  const container = document.getElementById('matches-list');
+  container.innerHTML="";
+  if(matches.length===0){
+    container.innerHTML='<div style="color:#666;margin-top:10px;">No matches added yet.</div>';
+    return;
+  }
+  matches.forEach((match,index)=>{
+    let div=document.createElement('div');
+    div.className='match-item';
+    div.innerHTML=`
+      <div style="max-width:70%;">
+        <strong>${match.teams}</strong><br>
+        Date: ${match.date} &nbsp; | &nbsp; Time: ${match.time}<br>
+        Stadium: ${match.stadium}<br>
+        <img src="${match.img}" alt="${match.teams}" style="width:140px;height:80px;object-fit:cover;margin-top:8px;border-radius:4px;">
+      </div>
+      <div style="text-align:right;">
+        <button onclick="editMatch(${index})">Edit</button>
+        <button onclick="deleteMatch(${index})">Delete</button>
+      </div>`;
+    container.appendChild(div);
+  });
 }
 
 /* Add Match */
 function addMatch(){
-    const teams = document.getElementById('match-teams').value.trim();
-    const date = document.getElementById('match-date').value;
-    const time = document.getElementById('match-time').value;
-    const stadium = document.getElementById('match-stadium').value.trim();
-    const img = document.getElementById('match-img').value.trim();
-    if(!teams || !date || !stadium || !img || !time){ alert("Fill all fields (including time)"); return; }
-    matches.push({teams,date,time,stadium,img});
-    localStorage.setItem('iplMatches', JSON.stringify(matches));
+  const teams=document.getElementById('match-teams').value.trim();
+  const date=document.getElementById('match-date').value;
+  const time=document.getElementById('match-time').value;
+  const stadium=document.getElementById('match-stadium').value.trim();
+  const fileInput=document.getElementById('match-file');
+  if(!teams || !date || !stadium || !time || fileInput.files.length===0){ alert('Fill all fields and select an image'); return; }
+
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const imgData=e.target.result;
+    matches.push({teams,date,time,stadium,img:imgData});
+    localStorage.setItem('iplMatches',JSON.stringify(matches));
     displayMatches();
-    document.getElementById('match-teams').value="";
-    document.getElementById('match-date').value="";
-    document.getElementById('match-time').value="";
-    document.getElementById('match-stadium').value="";
-    document.getElementById('match-img').value="";
+    document.getElementById('match-teams').value='';
+    document.getElementById('match-date').value='';
+    document.getElementById('match-time').value='';
+    document.getElementById('match-stadium').value='';
+    fileInput.value='';
+  }
+  reader.readAsDataURL(fileInput.files[0]);
 }
 
 /* Delete Match */
 function deleteMatch(index){
-    if(confirm("Are you sure to delete this match?")){
-        matches.splice(index,1);
-        localStorage.setItem('iplMatches', JSON.stringify(matches));
-        displayMatches();
-    }
+  if(confirm('Are you sure to delete this match?')){
+    matches.splice(index,1);
+    localStorage.setItem('iplMatches',JSON.stringify(matches));
+    displayMatches();
+  }
 }
 
 /* Edit Match */
 function editMatch(index){
-    const match=matches[index];
-    const newTeams=prompt("Edit Teams", match.teams);
-    const newDate=prompt("Edit Date (YYYY-MM-DD)", match.date);
-    const newTime=prompt("Edit Time (HH:MM)", match.time || "");
-    const newStadium=prompt("Edit Stadium", match.stadium);
-    const newImg=prompt("Edit Image URL", match.img);
-    if(newTeams && newDate && newTime && newStadium && newImg){
-        matches[index]={teams:newTeams,date:newDate,time:newTime,stadium:newStadium,img:newImg};
-        localStorage.setItem('iplMatches', JSON.stringify(matches));
-        displayMatches();
-    } else { alert('Edit cancelled or missing fields.'); }
+  const match=matches[index];
+  const newTeams=prompt("Edit Teams",match.teams);
+  const newDate=prompt("Edit Date (YYYY-MM-DD)",match.date);
+  const newTime=prompt("Edit Time (HH:MM)",match.time);
+  const newStadium=prompt("Edit Stadium",match.stadium);
+  if(newTeams && newDate && newTime && newStadium){
+    matches[index]={...match,teams:newTeams,date:newDate,time:newTime,stadium:newStadium};
+    localStorage.setItem('iplMatches',JSON.stringify(matches));
+    displayMatches();
+  }
 }
 
-/* Initialize display if logged in */
-if(sessionStorage.getItem('iplLoggedIn') === 'true'){
-  loadBannerToField();
-  displayMatches();
-}
-
-/* Toggle visibility for username/password inputs and new credentials inputs */
-function toggleInputVisibility(btnId, inputId){
-  const btn = document.getElementById(btnId);
-  const input = document.getElementById(inputId);
-  btn.addEventListener('click', () => {
-    if(input.type === 'password'){
-      input.type = 'text';
-      btn.textContent = '🙈';
-      btn.title = 'Hide';
-    } else {
-      input.type = 'password';
-      btn.textContent = '👁️';
-      btn.title = 'Show';
-    }
+/* Toggle visibility for inputs */
+function toggleInputVisibility(btnId,inputId){
+  const btn=document.getElementById(btnId);
+  const input=document.getElementById(inputId);
+  btn.addEventListener('click',()=>{
+    if(input.type==='password'){ input.type='text'; btn.textContent='🙈'; btn.title='Hide'; }
+    else{ input.type='password'; btn.textContent='👁️'; btn.title='Show'; }
   });
 }
-
-/* attach toggles */
 toggleInputVisibility('toggle-username','login-username');
 toggleInputVisibility('toggle-password','login-password');
 toggleInputVisibility('toggle-new-username','new-username');
 toggleInputVisibility('toggle-new-password','new-password');
 
+/* Initialize if logged in */
+if(sessionStorage.getItem('iplLoggedIn')==='true'){
+  displayMatches();
+}
 </script>
 
 </body>
